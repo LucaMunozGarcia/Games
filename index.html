@@ -507,9 +507,7 @@
   </div>
 
   <script>
-    const gameFolders = [
-      "Snake"
-    ];
+    let games = [];
 
     const grid = document.getElementById("gameGrid");
     const emptyState = document.getElementById("emptyState");
@@ -522,12 +520,19 @@
     const closePlayer = document.getElementById("closePlayer");
     const openNewTab = document.getElementById("openNewTab");
 
-    const games = gameFolders.map(folder => ({
-      folder,
-      title: folder.replaceAll("-", " ").replaceAll("_", " "),
-      url: `Games/${encodeURIComponent(folder)}/main.html`,
-      thumbnail: `Games/${encodeURIComponent(folder)}/thumbnail.png`
-    }));
+    // Lade games.json automatisch
+    fetch('games.json')
+      .then(r => r.json())
+      .then(data => {
+        games = data.map(g => ({
+          folder: g.folder,
+          title: g.folder.replaceAll("-", " ").replaceAll("_", " "),
+          url: `Games/${encodeURIComponent(g.folder)}/main.html`,
+          thumbnail: `Games/${encodeURIComponent(g.folder)}/thumbnail.png`
+        }));
+        renderGames();
+      })
+      .catch(e => console.error('Fehler beim Laden von games.json:', e));
 
     function renderGames(filter = "") {
       const term = filter.trim().toLowerCase();
@@ -603,8 +608,6 @@
     document.addEventListener("keydown", event => {
       if (event.key === "Escape" && modal.classList.contains("open")) closeGame();
     });
-
-    renderGames();
   </script>
 </body>
 </html>
