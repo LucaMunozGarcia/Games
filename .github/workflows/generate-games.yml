@@ -1,0 +1,36 @@
+name: Generate Games List
+
+on:
+  push:
+    paths:
+      - 'Games/**'
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Generate games.json
+        run: |
+          python3 << 'EOF'
+          import os
+          import json
+          
+          games = []
+          for folder in os.listdir('Games'):
+            if os.path.isdir(f'Games/{folder}'):
+              games.append({'folder': folder})
+          
+          with open('games.json', 'w') as f:
+            json.dump(games, f, indent=2)
+          EOF
+      
+      - name: Commit games.json
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add games.json
+          git commit -m "Auto-generate games.json" || true
+          git push
